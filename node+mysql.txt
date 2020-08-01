@@ -1,0 +1,119 @@
+const express = require('express');
+const mysql = require('mysql');
+var url = require('url');
+port = 3000;
+
+const db = mysql.createConnection({
+  host : 'localhost',
+  user : 'root',
+  password : 'exults0ft123',
+  database : 'mall'
+});
+
+db.connect((err)=>{
+  if(err){
+    throw err;
+  }
+  console.log('Mysql connected..');
+});
+
+const app = express();
+
+//create DB
+app.get('/createdb', (req, res)=>{
+  let sql = 'CREATE DATABASE mall';
+  db.query(sql, (err,result)=>{
+    if(err) throw err;
+    console.log(result);
+    res.send('database created...');
+  });
+});
+
+//Insert Data to login
+app.get('/insertData',function(req,res){
+  var url_parts = url.parse(req.url, true);
+  var query = url_parts.query;
+  var id = req.query.id;
+  var uname = req.query.uname;
+  var password = req.query.password;
+
+  console.log(id);
+  console.log(uname);
+  console.log(password);
+
+  db.connect(function(err) {
+    db.query("insert into login (id,uname,password) values ("+id+","+uname+","+password+")",function(err,result){
+      if(!!err){
+        console.log(err);
+        res.send('Error in inserting');
+      }
+      else{
+        db.query("SELECT * FROM login", function (err, result, fields) {
+          if (err) throw err;
+            console.log(result);
+          });
+        res.send('Successfully Insertion');
+      }
+    });
+  });
+});
+
+//Insert Data to register page
+app.get('/registerdata',function(req,res){
+  var url_parts = url.parse(req.url, true);
+  var query = url_parts.query;
+  var id = req.query.id;
+  var username = req.query.username;
+  var email = req.query.email;
+  var password = req.query.password;
+  var confirm_pass = req.query.confirm_pass;
+
+  console.log(id);
+  console.log(username);
+  console.log(email);
+  console.log(password);
+  console.log(confirm_pass);
+
+  db.connect(function(err) {
+    db.query("insert into register (id,username,email,password,confirm_pass) values ("+id+","+username+","+email+","+password+","+confirm_pass+")",function(err,result){
+      if(!!err){
+        console.log(err);
+        res.send('Error in inserting');
+      }
+      else{
+        db.query("SELECT * FROM register", function (err, result, fields) {
+          if (err) throw err;
+            console.log(result);
+          });
+        res.send('Successfully Insertion');
+      }
+    });
+  });
+});
+
+
+//select login
+app.get('/selectlogin', (req,res)=>{
+  let sql = 'SELECT * FROM login';  
+  let query = db.query(sql, (err,results)=>{
+    if(err) throw err;
+    console.log(results);
+    res.send('login.....');
+  });
+});
+
+
+//select register
+app.get('/selectregister', (req,res)=>{
+  let sql = 'SELECT * FROM register';  
+  let query = db.query(sql, (err,results)=>{
+    if(err) throw err;
+    console.log(results);
+    res.send('Register.....');
+  });
+});
+
+
+app.listen('3000',()=> {
+  console.log('server started on the port 3000');
+});
